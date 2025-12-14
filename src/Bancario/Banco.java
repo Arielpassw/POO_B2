@@ -1,3 +1,5 @@
+package Bancario;
+
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -13,7 +15,7 @@ public class Banco extends JFrame {
 
     private double saldo = 1000.00;  // saldo inicial
 
-    public Banco() {
+    public Banco(String s, String user) {
         setTitle("Banco Principal");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(1000, 800);
