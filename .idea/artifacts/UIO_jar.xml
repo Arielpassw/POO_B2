@@ -1,0 +1,10 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="UIO:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/UIO_jar</output-path>
+    <root id="archive" name="UIO.jar">
+      <element id="module-output" name="UIO" />
+      <element id="extracted-dir" path="$USER_HOME$/Downloads/mysql-connector-j-9.5.0/mysql-connector-j-9.5.0/mysql-connector-j-9.5.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/Downloads/postgresql-42.7.7.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>

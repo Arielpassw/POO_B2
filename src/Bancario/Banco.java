@@ -1,10 +1,10 @@
 package Bancario;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.sql.*;
 
 public class Banco extends JFrame {
+
     private JPanel PanelBanco;
     private JButton btnDeposito;
     private JButton btnRetiro;
@@ -13,126 +13,120 @@ public class Banco extends JFrame {
     private JTextField txtSaldo;
     private JTextArea textArea1;
 
-    private double saldo = 1000.00;  // saldo inicial
+    private String usuario;
+    private int usuarioId;
+    private double saldo;
 
-    public Banco(String s, String user) {
-        setTitle("Banco Principal");
+    public Banco(String usuario, String nombre) {
+        this.usuario = usuario;
+
+        setTitle("Banco - Bienvenido " + nombre);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(1000, 800);
         setLocationRelativeTo(null);
-
         setContentPane(PanelBanco);
         setVisible(true);
 
-        // Mostrar saldo inicial
-        txtSaldo.setText(String.valueOf(saldo));
+        // Cargar datos reales desde la BD
+        cargarDatosUsuario();
 
         // ---- DEPÓSITO ----
-        btnDeposito.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String input = JOptionPane.showInputDialog(null, "Ingresa el monto a depositar");
+        btnDeposito.addActionListener(e -> {
+            String input = JOptionPane.showInputDialog("Ingrese monto a depositar");
 
-                if (input != null && !input.isEmpty()) {
-                    double monto = Double.parseDouble(input);
-                    saldo += monto;
-                    txtSaldo.setText(String.valueOf(saldo));
+            if (input == null || input.isEmpty()) return;
 
-                    textArea1.append("Depósito: +" + monto + "\n");
-                    textArea1.append("Saldo actual: " + saldo + "\n\n");
-                    JOptionPane.showMessageDialog(null,"Deposito correctamente");
-                }
+            try {
+                double monto = Double.parseDouble(input);
+                saldo += monto;
+                actualizarSaldoBD();
+
+                txtSaldo.setText(String.valueOf(saldo));
+                textArea1.append("Depósito: +" + monto + "\n");
+                textArea1.append("Saldo actual: " + saldo + "\n\n");
+
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "Monto inválido");
             }
         });
 
         // ---- RETIRO ----
-        btnRetiro.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
+        btnRetiro.addActionListener(e -> {
+            String input = JOptionPane.showInputDialog("Ingrese monto a retirar");
 
-                String input = JOptionPane.showInputDialog(null, "Ingresa el monto a retirar");
+            if (input == null || input.isEmpty()) return;
 
-                if (input != null && !input.isEmpty()) {
-                    double monto = Double.parseDouble(input);
+            try {
+                double monto = Double.parseDouble(input);
 
-                    if (monto > saldo) {
-                        JOptionPane.showMessageDialog(null, "Error: saldo insuficiente");
-                        return;
-                    }
-
-                    saldo -= monto;
-                    txtSaldo.setText(String.valueOf(saldo));
-
-                    textArea1.append("Retiro: -" + monto + "\n");
-                    textArea1.append("Saldo actual: " + saldo + "\n\n");
-                    JOptionPane.showMessageDialog(null,"Retiro correctamente");
-                }
-            }
-        });
-
-
-        // ---- TRANSFERENCIA ----
-        btnTransferencia.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                // Solicitar nombre del destinatario
-                String destinatario = JOptionPane.showInputDialog(
-                        null, "Ingrese el nombre del destinatario");
-
-                if (destinatario == null || destinatario.trim().isEmpty()) {
-                    JOptionPane.showMessageDialog(null, "Debe ingresar un nombre válido.");
-                    return;
-                }
-
-                // Solicitar monto a transferir
-                String inputMonto = JOptionPane.showInputDialog(
-                        null, "Ingrese el monto a transferir");
-
-                if (inputMonto == null || inputMonto.trim().isEmpty()) {
-                    JOptionPane.showMessageDialog(null, "Debe ingresar un monto válido.");
-                    return;
-                }
-
-                double monto;
-
-                try {
-                    monto = Double.parseDouble(inputMonto);
-                } catch (NumberFormatException ex) {
-                    JOptionPane.showMessageDialog(null, "Monto inválido. Ingrese un número.");
-                    return;
-                }
-
-                // Validar saldo suficiente
                 if (monto > saldo) {
-                    JOptionPane.showMessageDialog(null, "Error: saldo insuficiente para transferir.");
+                    JOptionPane.showMessageDialog(this, "Saldo insuficiente");
                     return;
                 }
 
-                // Realizar transferencia
                 saldo -= monto;
+                actualizarSaldoBD();
 
-                // Actualizar saldo en el formulario
                 txtSaldo.setText(String.valueOf(saldo));
-
-                // Mensaje de confirmación
-                JOptionPane.showMessageDialog(null,
-                        "Transferencia exitosa a " + destinatario +
-                                " por $" + monto);
-
-                // Registrar historial
-                textArea1.append("Transferencia a " + destinatario + ": -" + monto + "\n");
+                textArea1.append("Retiro: -" + monto + "\n");
                 textArea1.append("Saldo actual: " + saldo + "\n\n");
+
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "Monto inválido");
             }
         });
-
 
         // ---- SALIR ----
-        btnSalir.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                System.exit(0);
+        btnSalir.addActionListener(e -> System.exit(0));
+    }
+
+    /**
+     * Obtiene el ID del usuario y su saldo desde la base de datos
+     */
+    private void cargarDatosUsuario() {
+        String sql = """
+            SELECT u.id, c.saldo
+            FROM usuarios u
+            JOIN cuentas c ON u.id = c.usuario_id
+            WHERE u.usuario = ?
+        """;
+
+        try (Connection con = ConexionBD.conectar();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, usuario);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                usuarioId = rs.getInt("id");
+                saldo = rs.getDouble("saldo");
+                txtSaldo.setText(String.valueOf(saldo));
             }
-        });
+
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this,
+                    "Error al cargar datos del usuario");
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Actualiza el saldo del usuario en la base de datos
+     */
+    private void actualizarSaldoBD() {
+        String sql = "UPDATE cuentas SET saldo=? WHERE usuario_id=?";
+
+        try (Connection con = ConexionBD.conectar();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setDouble(1, saldo);
+            ps.setInt(2, usuarioId);
+            ps.executeUpdate();
+
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this,
+                    "Error al actualizar saldo");
+            e.printStackTrace();
+        }
     }
 }

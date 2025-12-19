@@ -6,11 +6,18 @@ import java.sql.SQLException;
 
 public class ConexionBD {
 
+    private static final String URL =
+            "jdbc:mysql://bv65fjcidrdhoqrefng2-mysql.services.clever-cloud.com:3306/bv65fjcidrdhoqrefng2"
+                    + "?useSSL=true"
+                    + "&requireSSL=true"
+                    + "&verifyServerCertificate=false"
+                    + "&serverTimezone=UTC"
+                    + "&allowPublicKeyRetrieval=true";
+
+    private static final String USER = "um0fus60m1mffu1y";
+    private static final String PASSWORD = "XzzzSA5CdSstdbYovTgG";
+
     public static Connection conectar() throws SQLException {
-        String url = "jdbc:mysql://localhost:3306/DB_Banco";
-        String user = "root";
-        String password = "2004Franzu";
-        return DriverManager.getConnection(url, user, password);
+        return DriverManager.getConnection(URL, USER, PASSWORD);
     }
 }
-
