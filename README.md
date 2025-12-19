@@ -179,4 +179,48 @@ INSERT INTO cuentas (usuario_id, saldo) VALUES
 (3, 800.00),
 (4, 1200.00),
 (5, 2000.00);
+```
+---
+## Implementación de Clever Cloud 
+
+Se implento una base de datos en la nuebe para lo cual ocupamos el servició de Clever Cloud 
+
+<img width="1878" height="708" alt="image" src="https://github.com/user-attachments/assets/f955f81d-c0f7-452e-ba62-6a008f17de51" />
+
+
+---
+
+---
+## Modificación en la Conexión 
+
+-- Se cambio el link del "JDCB" para la correcta conexión a la base de datos
+
+<img width="1137" height="647" alt="image" src="https://github.com/user-attachments/assets/ff9dad32-15bc-4eb3-ad98-8d5994112a7b" />
+
+---
+
+---
+## Modificación en la ventana principal 
+
+Mejora del sistema 
+-- Se actualiza los saldos de las cuentas tanto en el ejecutable como en la nube 
+
+<img width="925" height="619" alt="image" src="https://github.com/user-attachments/assets/2f5c5b77-6cc9-4e73-8d90-7ae919c52e00" />
+
+<img width="984" height="708" alt="image" src="https://github.com/user-attachments/assets/c04d737b-01a6-4d18-98dc-89851f41930f" />
+
+<img width="799" height="771" alt="image" src="https://github.com/user-attachments/assets/63e63976-4b3b-4bab-aa15-9300e26bd44b" />
+
+<img width="737" height="550" alt="image" src="https://github.com/user-attachments/assets/5e0ec52c-5d22-4190-886d-18223c76d05f" />
+
+
+
+
+
+
+
+
+
+
+
 
